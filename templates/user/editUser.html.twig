@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello ProductController!{% endblock %}
+
+{% block body %}
+<form action="{{path('update_user', {user: user.id})}}" method="POST">
+    <input type= "hidden" name="_method" value="PUT">
+    <input type="text" name="first_name" value="{{ user.firstname }}">
+    <input type="text" name="last_name" value="{{ user.lastname }}">
+    <input type="number" name="age" value="{{ user.age }}">
+    <input type="text" name="status" value="{{ user.status }}">
+    <input type="text" name="telegram" value="{{ user.telegram }}">
+    <input type="text" name="email" value="{{ user.email }}">
+    <input type="text" name="address" value="{{ user.address }}">
+    <input type="submit">
+</form>
+{% endblock %}
