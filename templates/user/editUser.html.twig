@@ -3,15 +3,25 @@
 {% block title %}Hello ProductController!{% endblock %}
 
 {% block body %}
-<form action="{{path('update_user', {user: user.id})}}" method="POST">
-    <input type= "hidden" name="_method" value="PUT">
-    <input type="text" name="first_name" value="{{ user.firstname }}">
-    <input type="text" name="last_name" value="{{ user.lastname }}">
-    <input type="number" name="age" value="{{ user.age }}">
-    <input type="text" name="status" value="{{ user.status }}">
-    <input type="text" name="telegram" value="{{ user.telegram }}">
-    <input type="text" name="email" value="{{ user.email }}">
-    <input type="text" name="address" value="{{ user.address }}">
-    <input type="submit">
+<form action={{path('update_user', {user: user.id})}} method="POST">
+ <ul style="list-style-type: none;">
+    <li><input type= "hidden" name="_method" value="PUT"></li>
+    <li><input type="text" name="first_name" value="{{ user.firstname }}"></li>
+    <li><input type="text" name="last_name" value="{{ user.lastname }}"></li>
+    <li><input type="number" name="age" value="{{ user.age }}"></li>
+    <li><input type="text" name="status" value="{{ user.status }}"></li>
+    <li><input type="text" name="telegram" value="{{ user.telegram }}"></li>
+    <li><input type="text" name="email" value="{{ user.email }}"></li>
+    <li><input type="text" name="address" value="{{ user.address }}"></li>
+    <li><select name="department">
+        {% for i in department %}
+            <option value="{{ i.id }}" {% if user.department.id == i.id %}
+            selected
+            {% endif %}
+            >{{ i.name }}</option>
+        {% endfor %}
+    </select></li>
+    <li><input type="submit"></li>
+</ul>
 </form>
 {% endblock %}

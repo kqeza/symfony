@@ -5,18 +5,28 @@
 {% block body %}
 <style>
 </style>
-
+<form method="GET" action="{{ path('index_user') }}">
+    <input type="text" placeholder="поиск по имени или email" name="search">
+    <select name="department">
+        <option value="0">All</option>
+        {% for i in department %}
+            <option value="{{ i.id }}">{{ i.name }}</option>
+        {% endfor %}
+    </select>
+    <input type="submit">
+</form>
 <table>
     <thead>
     <tr>
-        <th>Имя</th>
-        <th>Фамилия</th>
-        <th>Возрас</th>
-        <th>Статус</th>
-        <th>Почта</th>
-        <th>Телеграм</th>
-        <th>Адрес</th>
-    </tr>
+    <th><a href="{{ path('index_user', {sort: 'first_name', order: app.request.get('order') == 'asc' ? 'desc' : 'asc'}) }}">Имя</a></th>
+    <th><a href="{{ path('index_user', {sort: 'last_name', order: app.request.get('order') == 'asc' ? 'desc' : 'asc'}) }}">Фамилия</a></th>
+    <th><a href="{{ path('index_user', {sort: 'age', order: app.request.get('order') == 'asc' ? 'desc' : 'asc'}) }}">Возраст</a></th>
+    <th><a href="{{ path('index_user', {sort: 'status', order: app.request.get('order') == 'asc' ? 'desc' : 'asc'}) }}">Статус</a></th>
+    <th><a href="{{ path('index_user', {sort: 'email', order: app.request.get('order') == 'asc' ? 'desc' : 'asc'}) }}">Почта</a></th>
+    <th><a href="{{ path('index_user', {sort: 'telegram', order: app.request.get('order') == 'asc' ? 'desc' : 'asc'}) }}">Телеграм</a></th>
+    <th><a href="{{ path('index_user', {sort: 'address', order: app.request.get('order') == 'asc' ? 'desc' : 'asc'}) }}">Адрес</a></th>
+    <th>Отдел</th>
+</tr>
     </thead>
     <tbody>
     {% for user in users %}
@@ -28,6 +38,7 @@
             <td>{{ user.email }}</td>
             <td>{{ user.telegram }}</td>
             <td>{{ user.address}}</td>
+            <td>{{ user.department.name }}</td>
 
             <td>
                 <form method="POST" action="{{ path('delete_user', {"user": user.id}) }}">
@@ -45,8 +56,4 @@
     </tbody>
 </table>
 <hr/>
-<form method="GET" action="{{ path('index_user') }}">
-    <input type="text" placeholder="поиск по имени или email" name="search">
-    <input type="submit">
-</form>
 {% endblock %}
