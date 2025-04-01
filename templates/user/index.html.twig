@@ -4,8 +4,13 @@
 
 {% block body %}
 <style>
+.user-icon {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+    }
 </style>
-<form method="GET" action="{{ path('index_user') }}">
+<form method="GET" action="{{ path('index_user') }}" enctype="multipart/form-data">
     <input type="text" placeholder="поиск по имени или email" name="search">
     <select name="department">
         <option value="0">All</option>
@@ -18,6 +23,7 @@
 <table>
     <thead>
     <tr>
+    <th>Фото</th>
     <th><a href="{{ path('index_user', {sort: 'first_name', order: app.request.get('order') == 'asc' ? 'desc' : 'asc'}) }}">Имя</a></th>
     <th><a href="{{ path('index_user', {sort: 'last_name', order: app.request.get('order') == 'asc' ? 'desc' : 'asc'}) }}">Фамилия</a></th>
     <th><a href="{{ path('index_user', {sort: 'age', order: app.request.get('order') == 'asc' ? 'desc' : 'asc'}) }}">Возраст</a></th>
@@ -31,6 +37,13 @@
     <tbody>
     {% for user in users %}
         <tr>
+        <td>                
+                {% if user.icon %}
+                    <img src="{{ asset('public/icon/' ~ user.icon) }}" class="user-icon">
+                {% else %}
+                    <img src="{{ asset('public/icon/default.png') }}" class="user-icon">
+                {% endif %}
+            </td>
             <td>{{ user.firstname }}</td>
             <td>{{ user.lastname }}</td>
             <td>{{ user.age }}</td>

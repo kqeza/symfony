@@ -3,7 +3,7 @@
 {% block title %}Hello ProductController!{% endblock %}
 
 {% block body %}
-<form action={{path('update_user', {user: user.id})}} method="POST">
+<form action={{path('update_user', {user: user.id})}} enctype="multipart/form-data" method="POST">
  <ul style="list-style-type: none;">
     <li><input type= "hidden" name="_method" value="PUT"></li>
     <li><input type="text" name="first_name" value="{{ user.firstname }}"></li>
@@ -21,6 +21,7 @@
             >{{ i.name }}</option>
         {% endfor %}
     </select></li>
+    <li><input type="file" name="icon" class="icon" accept="image/jpg, image/png"></li>
     <li><input type="submit"></li>
 </ul>
 </form>

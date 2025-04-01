@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 final class UserController extends AbstractController
 {
@@ -18,16 +19,6 @@ final class UserController extends AbstractController
     #[Route('/user', name: 'index_user', methods: ['GET'])]
     public function index(DepartmentRepository $departmentRepository, UserRepository $userRepository,  Request $request, EntityManagerInterface $em): Response
     {
-        $sort = $request->query->get('sort', 'first_name');
-        $order = $request->query->get('order', 'asc');
-
-        if (!in_array($sort, ['first_name', 'last_name', 'age', 'status', 'email', 'telegram', 'address'])) {
-            $sort = 'first_name';
-        }
-
-        $order = $order === 'desc' ? 'DESC' : 'ASC';
-
-        $users = $userRepository->findBy([], [$sort => $order]);
 
         $userQb = $userRepository->createQueryBuilder('user');
 
@@ -47,12 +38,7 @@ final class UserController extends AbstractController
         $department = $departmentQb->getQuery()->getResult();
 
 
-        return $this->render('/user/index.html.twig', [
-            'users' => $users,
-            'sort' => $sort,
-            'order' => $order,
-            'department' => $department
-        ]);
+        return $this->render('/user/index.html.twig', ['users' => $users, 'department' => $department]);
     }
 
 
@@ -76,18 +62,28 @@ final class UserController extends AbstractController
         $user->setTelegram($request->request->get('telegram'));
         $user->setAddress($request->request->get('address'));
         $user->setDepartment($departmentRepository->find($departmentID));
+        $image = $request->files->get("icon");
+        if ($image) {
+            $iconName = uniqid() . '.' . $image->guessExtension();
+            $image->move($this->getParameter('uploads_directory'), $iconName);
+
+            $user->setIcon($iconName);
+        }
+
         $em->flush();
         return $this->redirect('/user');
     }
 
     #[Route('/user/{user}/edit', name: 'edit_user', methods: ["GET"])]
-    public function edit(User  $user): Response
+    public function edit(DepartmentRepository $departmentRepository, User  $user): Response
     {
-        return $this->render('/user/editUser.html.twig', ['user' => $user]);
+        $qb = $departmentRepository->createQueryBuilder('u');
+        $department = $qb->getQuery()->getResult();
+        return $this->render('/user/editUser.html.twig', ['user' => $user, 'department' => $department]);
     }
 
     #[Route('/user', name: 'create_user', methods: ['POST'])]
-    public function create(EntityManagerInterface $em, Request $request, DepartmentRepository $departmentRepository): Response
+    public function create(EntityManagerInterface $em, Request $request, DepartmentRepository $departmentRepository, SluggerInterface $slugger): Response
     {
         $departmentID = $request->request->get('department');
 
@@ -100,6 +96,14 @@ final class UserController extends AbstractController
         $user->setEmail($request->request->get('email'));
         $user->setAddress($request->request->get('address'));
         $user->setDepartment($departmentRepository->find($departmentID));
+        $image = $request->files->get("icon");
+        if ($image) {
+            $iconName = uniqid() . '.' . $image->guessExtension();
+            $image->move($this->getParameter('uploads_directory'), $iconName);
+
+            $user->setIcon($iconName);
+        }
+
 
         $em->persist($user);
         $em->flush();
