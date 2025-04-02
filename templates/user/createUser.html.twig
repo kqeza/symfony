@@ -3,6 +3,15 @@
 {% block title %}Hello ProductController!{% endblock %}
 
 {% block body %}
+{% if errors is defined and errors|length > 0 %}
+    <div class="alert alert-danger">
+        <ul>
+            {% for error in errors %}
+                <li>{{ error.propertyPath }}: {{ error.message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
     <form method="POST" action={{ path('create_user') }} enctype="multipart/form-data">
      <ul style="list-style-type: none;">
         <li><input name="first_name" class="firstname" type="text" placeholder="Имя"></li>

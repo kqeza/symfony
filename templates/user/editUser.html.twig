@@ -3,6 +3,15 @@
 {% block title %}Hello ProductController!{% endblock %}
 
 {% block body %}
+{% if errors is defined and errors|length > 0 %}
+    <div class="alert alert-danger">
+        <ul>
+            {% for error in errors %}
+                <li>{{ error.propertyPath }}: {{ error.message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
 <form action={{path('update_user', {user: user.id})}} enctype="multipart/form-data" method="POST">
  <ul style="list-style-type: none;">
     <li><input type= "hidden" name="_method" value="PUT"></li>

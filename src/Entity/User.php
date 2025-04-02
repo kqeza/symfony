@@ -16,33 +16,38 @@ class User
 
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
-
+    #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: "Фамилия не должна быть пустой.")]
+    #[Assert\Length(min: 2, max: 100, minMessage: "Фамилия должна содержать минимум {{ limit }} символа.")]
     private ?string $last_name = null;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
+    #[ORM\Column(length: 100)]
+    #[Assert\NotBlank(message: "Имя не должно быть пустым.")]
+    #[Assert\Length(min: 2, max: 100, minMessage: "Имя должно содержать минимум {{ limit }} символа.")]
     private ?string $first_name = null;
 
     #[ORM\Column]
-    #[Assert\NotNull]
-    #[Assert\Positive]
+    #[Assert\NotBlank(message: "Возраст обязателен.")]
+    #[Assert\Type(type: 'integer', message: "Возраст должен быть числом.")]
+    #[Assert\Range(min: 18, max: 99, notInRangeMessage: "Возраст должен быть от {{ min }} до {{ max }} лет.")]
     private ?int $age = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     private ?string $status = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, unique: true)]
+    #[Assert\NotBlank(message: "Email обязателен.")]
+    #[Assert\Email(message: "Некорректный email.")]
     private ?string $email = null;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
+    #[ORM\Column(length: 50, nullable: true)]
+    #[Assert\Length(max: 50, maxMessage: "Telegram никнейм не должен превышать {{ limit }} символов.")]
     private ?string $telegram = null;
 
+
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(message: "Адрес обязателен.")]
     private ?string $address = null;
 
     #[ORM\ManyToOne(inversedBy: 'users')]

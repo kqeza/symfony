@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final class UserController extends AbstractController
 {
@@ -46,13 +47,16 @@ final class UserController extends AbstractController
     #[Route('/user/{user}', name: 'delete_user', methods: ["DELETE"])]
     public function delete(User $user, EntityManagerInterface $em): Response
     {
+        if (!$user) {
+            throw $this->createNotFoundException('Пользователь не найден.');
+        }
         $em->remove($user);
         $em->flush();
         return $this->redirect('/user');
     }
 
     #[Route('/user/{user}/edit', name: 'update_user', methods: ["PUT"])]
-    public function update(User  $user, Request $request, EntityManagerInterface $em, DepartmentRepository $departmentRepository): Response
+    public function update(User  $user, Request $request, EntityManagerInterface $em, DepartmentRepository $departmentRepository, ValidatorInterface $validator): Response
     {
         $departmentID = $request->request->get('department');
         $user->setFirstName($request->request->get('first_name'));
@@ -68,6 +72,14 @@ final class UserController extends AbstractController
             $image->move($this->getParameter('uploads_directory'), $iconName);
 
             $user->setIcon($iconName);
+        }
+        $errors = $validator->validate($user);
+        if (count($errors) > 0) {
+            return $this->render('user/editUser.html.twig', [
+                'errors' => $errors,
+                'user' => $user,
+                'department' => $departmentRepository->findAll()
+            ]);
         }
 
         $em->flush();
@@ -77,16 +89,18 @@ final class UserController extends AbstractController
     #[Route('/user/{user}/edit', name: 'edit_user', methods: ["GET"])]
     public function edit(DepartmentRepository $departmentRepository, User  $user): Response
     {
+        if (!$user) {
+            throw $this->createNotFoundException('Пользователь не найден.');
+        }
         $qb = $departmentRepository->createQueryBuilder('u');
         $department = $qb->getQuery()->getResult();
         return $this->render('/user/editUser.html.twig', ['user' => $user, 'department' => $department]);
     }
 
     #[Route('/user', name: 'create_user', methods: ['POST'])]
-    public function create(EntityManagerInterface $em, Request $request, DepartmentRepository $departmentRepository, SluggerInterface $slugger): Response
+    public function create(EntityManagerInterface $em, Request $request, DepartmentRepository $departmentRepository, SluggerInterface $slugger, ValidatorInterface $validator): Response
     {
         $departmentID = $request->request->get('department');
-
         $user = new User();
         $user->setFirstName($request->request->get('first_name'));
         $user->setLastName($request->request->get('last_name'));
@@ -96,15 +110,21 @@ final class UserController extends AbstractController
         $user->setEmail($request->request->get('email'));
         $user->setAddress($request->request->get('address'));
         $user->setDepartment($departmentRepository->find($departmentID));
+
+        $errors = $validator->validate($user);
+        if (count($errors) > 0) {
+            return $this->render('user/createUser.html.twig', [
+                'errors' => $errors,
+                'user' => $user,
+                'department' => $departmentRepository->findAll()
+            ]);
+        }
         $image = $request->files->get("icon");
         if ($image) {
             $iconName = uniqid() . '.' . $image->guessExtension();
             $image->move($this->getParameter('uploads_directory'), $iconName);
-
             $user->setIcon($iconName);
         }
-
-
         $em->persist($user);
         $em->flush();
 
